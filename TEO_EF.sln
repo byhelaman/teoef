@@ -5,6 +5,8 @@ VisualStudioVersion = 17.13.35913.81 d17.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TEO_EF", "TEO_EF.csproj", "{407D2D8E-8827-4C41-A570-A8E7672FE066}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Library", "Library\Library.csproj", "{9012929A-C08C-4C47-8910-1EEC1D9CC856}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{407D2D8E-8827-4C41-A570-A8E7672FE066}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{407D2D8E-8827-4C41-A570-A8E7672FE066}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{407D2D8E-8827-4C41-A570-A8E7672FE066}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9012929A-C08C-4C47-8910-1EEC1D9CC856}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9012929A-C08C-4C47-8910-1EEC1D9CC856}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9012929A-C08C-4C47-8910-1EEC1D9CC856}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9012929A-C08C-4C47-8910-1EEC1D9CC856}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
