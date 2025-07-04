@@ -27,18 +27,55 @@ namespace TEO_EF
                     continue;
                 }
 
+                string nroDni = "";
+                int index;
                 switch (opcion)
                 {
                     case 1:
                         Alumno.ListarAlumnos();
+                        Console.WriteLine("\nPresione cualquier tecla para continuar...");
+                        Console.ReadKey();
+                        Console.Clear();
+                        break;
+                    case 3:
+                        Console.WriteLine("Ingrese el Nro DNI del alumno a eliminar: ");
+
+                        Alumno.ModificarAlumno(nroDni);
+                        Console.ReadKey();
+                        Console.Clear();
+                        break;
+                    case 4:
+                        Console.WriteLine("Ingrese el Nro DNI del alumno a eliminar: ");
+                        //nroDni = Console.ReadLine();
+
+                        Alumno.EliminarAlumno(nroDni);
                         Console.ReadKey();
                         Console.Clear();
                         break;
                     case 5:
-                        Alumno.RegistrarNotas();
+                        do
+                        {
+                            Console.WriteLine("\nIngrese el Nro DNI del alumno para registrar notas: ");
+                            nroDni = Console.ReadLine();
+                            index = Alumno.ObtenerIndiceAlumno(nroDni);
+
+                            if (index == -1)
+                            {
+                                Console.WriteLine("Alumno no encontrado.");
+                            }
+
+                        } while (index == -1);
+
+
+                        Alumno.RegistrarNotas(nroDni);
                         Console.ReadKey();
                         Console.Clear();
 
+                        break;
+                    case 6:
+                        Alumno.ReporteOrdenado();
+                        Console.ReadKey();
+                        Console.Clear();
                         break;
                     case 8:
                         salir = true;
