@@ -8,274 +8,211 @@ namespace Library
 {
     public class Alumno
     {
-        private static string[,] alumnos;
-        private static int contadorAlumnos = 0;
+        /// Número máximo de alumnos que se pueden almacenar
+        private const int MAX_ALUMNOS = 100;
 
+        // Número de columnas (campos) que cada registro posee
+        private const int COLUMNAS = 10; 
 
-        public static int ObtenerIndiceAlumno(string nroDni)
+        // Matriz que contiene los datos
+        private static readonly string[,] _data = new string[MAX_ALUMNOS, COLUMNAS];
+
+        // Cantidad actual de alumnos registrados (también indica la siguiente fila libre)
+        private static int _contador = 0;
+
+        // Indices de columnas
+        private const int IDX_DNI = 0;
+        private const int IDX_NOMBRES = 1;
+        private const int IDX_APELLIDOS = 2;
+        private const int IDX_CORREO = 3;
+        private const int IDX_CELULAR = 4;
+        private const int IDX_T1 = 5;
+        private const int IDX_PARCIAL = 6;
+        private const int IDX_T2 = 7;
+        private const int IDX_FINAL = 8;
+        private const int IDX_NF = 9; // Nota Final (promedio)
+
+        // Agrega un nuevo alumno al arreglo.
+        // Retorna True si la operación fue exitosa; False si la lista está llena o el DNI ya existe
+        public static bool Agregar(string dni, string nombres, string apellidos, string correo, string celular)
         {
-            if (contadorAlumnos == 0)
+            // Verificar capacidad y unicidad del DNI
+            if (_contador >= MAX_ALUMNOS || BuscarIndice(dni) != -1)
+                return false; // Lista llena o DNI duplicado
+
+            // Registrar los datos en la fila disponible
+            _data[_contador, IDX_DNI] = dni;
+            _data[_contador, IDX_NOMBRES] = nombres;
+            _data[_contador, IDX_APELLIDOS] = apellidos;
+            _data[_contador, IDX_CORREO] = correo;
+            _data[_contador, IDX_CELULAR] = celular;
+            _contador++;
+
+            return true;
+        }
+
+        // Modifica un campo de un alumno existente identificado por su DNI
+        // Retorna True si se modificó; False si el alumno no existe o el código es inválido
+        public static bool ModificarCampo(string dni, int campo, string nuevoValor)
+        {
+            int i = BuscarIndice(dni);
+            if (i == -1) return false; // Alumno no encontrado
+
+            switch (campo)
             {
-                Console.WriteLine("\nNo hay alumnos registrados.");
-                return -1; // No hay alumnos registrados
+                case 1: _data[i, IDX_NOMBRES] = nuevoValor; break;
+                case 2: _data[i, IDX_APELLIDOS] = nuevoValor; break;
+                case 3: _data[i, IDX_CORREO] = nuevoValor; break;
+                case 4: _data[i, IDX_CELULAR] = nuevoValor; break;
+                default: return false; // Campo inválido
+            }
+            return true;
+        }
+
+        // Elimina un alumno del arreglo y devuelve sus nombres y apellidos
+        // Retorna True si se eliminó; False si no se encontró
+        public static bool Eliminar(string dni, out string nombres, out string apellidos)
+        {
+            nombres = apellidos = string.Empty;
+            int idx = BuscarIndice(dni);
+            if (idx == -1) return false;
+
+            // Copiar datos para devolverlos
+            nombres = _data[idx, IDX_NOMBRES];
+            apellidos = _data[idx, IDX_APELLIDOS];
+
+            // Desplazar las filas hacia arriba para tapar el hueco
+            for (int i = idx; i < _contador - 1; i++)
+                for (int j = 0; j < COLUMNAS; j++)
+                    _data[i, j] = _data[i + 1, j];
+
+            _contador--; // Ajustar contador
+            return true;
+        }
+
+        // Registra una nota en la evaluación indicada y recalcula la nota final (NF)
+        // Retorna True si la operación fue exitosa
+        public static bool RegistrarNota(string dni, int evaluacion, double nota, out string nombres, out string apellidos)
+        {
+            nombres = apellidos = string.Empty;
+            int i = BuscarIndice(dni);
+            if (i == -1) return false;
+
+            // Registrar la nota formateada con dos decimales
+            switch (evaluacion)
+            {
+                case 1: _data[i, IDX_T1] = nota.ToString("0.00"); break;
+                case 2: _data[i, IDX_PARCIAL] = nota.ToString("0.00"); break;
+                case 3: _data[i, IDX_T2] = nota.ToString("0.00"); break;
+                case 4: _data[i, IDX_FINAL] = nota.ToString("0.00"); break;
+                default: return false; // Evaluación inválida
             }
 
-            for (int i = 0; i < contadorAlumnos; i++)
+            RecalcularNF(i); // Actualizar nota final
+            nombres = _data[i, IDX_NOMBRES];
+            apellidos = _data[i, IDX_APELLIDOS];
+            return true;
+        }
+
+        // Devuelve una copia de los datos actuales (sólo filas utilizadas)
+        public static string[,] ObtenerDatos()
+        {
+            var copia = new string[_contador, COLUMNAS];
+            for (int i = 0; i < _contador; i++)
+                for (int j = 0; j < COLUMNAS; j++)
+                    copia[i, j] = _data[i, j];
+            return copia;
+        }
+
+        // Ordena y devuelve una copia de los datos según el tipo especificado
+        // 1=DNI, 2=Nombres, 3=Apellidos, 4=Correo, 5=Celular
+        public static string[,] Ordenar(int tipo)
+        {
+            var copia = ObtenerDatos();
+            for (int i = 0; i < copia.GetLength(0) - 1; i++)
             {
-                if (alumnos[i, 0] == nroDni)
-                {
-                    return i;
-                }
+                int min = i;
+                for (int j = i + 1; j < copia.GetLength(0); j++)
+                    if (Comparar(copia, j, min, tipo) < 0) min = j;
+                if (min != i) Intercambiar(copia, i, min);
             }
+            return copia;
+        }
+
+        // Retorna los N alumnos con mayor nota final
+        public static string[,] ObtenerTopN(int n)
+        {
+            if (n > _contador) n = _contador; // Ajustar si N excede el total
+            var ord = OrdenadarPorNFDesc();
+            var top = new string[n, COLUMNAS];
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < COLUMNAS; j++)
+                    top[i, j] = ord[i, j];
+            return top;
+        }
+
+        // Busca el índice (fila) de un alumno por su DNI
+        private static int BuscarIndice(string dni)
+        {
+            for (int i = 0; i < _contador; i++)
+                if (_data[i, IDX_DNI] == dni) return i;
             return -1; // No encontrado
         }
 
-        public static void ListarAlumnos()
+        // Convierte un string a double, devolviendo 0 si es nulo o inválido
+        private static double Parse(string s) => double.TryParse(s, out var v) ? v : 0;
+
+        // Recalcula la nota final (NF) de la fila indicada usando ponderaciones fijas
+        private static void RecalcularNF(int i)
         {
-            if(contadorAlumnos == 0)
+            double t1 = Parse(_data[i, IDX_T1]);
+            double par = Parse(_data[i, IDX_PARCIAL]);
+            double t2 = Parse(_data[i, IDX_T2]);
+            double fin = Parse(_data[i, IDX_FINAL]);
+
+            double nf = t1 * 0.15 + par * 0.30 + t2 * 0.15 + fin * 0.40;
+            _data[i, IDX_NF] = nf.ToString("0.00");
+        }
+
+        // Compara dos filas según la columna indicada por "tipo"
+        private static int Comparar(string[,] arr, int a, int b, int tipo)
+        {
+            int col;
+            switch (tipo)
             {
-                Console.WriteLine("\nNo hay alumnos registrados.");
-                return;
+                case 1: col = IDX_DNI; break;
+                case 2: col = IDX_NOMBRES; break;
+                case 3: col = IDX_APELLIDOS; break;
+                case 4: col = IDX_CORREO; break;
+                case 5: col = IDX_CELULAR; break;
+                default: col = IDX_DNI; break; // Fallback
             }
-
-            Console.WriteLine($"\n| {"Nro DNI",-10} | {"Nombres",-15} | {"Apellidos",-15} | {"Correo",-15} | {"Celular",-10} |");
-            Console.WriteLine(new string('-', 81));
-            Console.WriteLine($"@@@");
-            Console.WriteLine(new string('-', 81));
+            return string.Compare(arr[a, col], arr[b, col], StringComparison.OrdinalIgnoreCase);
         }
 
-        public static void RegistrarAlumno(string nroDni, string nombres, string apellidos, string correo, string celular)
+        // Ordena una copia de los datos por Nota Final (descendente)
+        private static string[,] OrdenadarPorNFDesc()
         {
-            alumnos[contadorAlumnos, 0] = nroDni; // Nro DNI
-            alumnos[contadorAlumnos, 1] = nombres; // Nombres
-            alumnos[contadorAlumnos, 2] = apellidos; // Apellidos
-            alumnos[contadorAlumnos, 3] = correo; // Correo
-            alumnos[contadorAlumnos, 4] = celular; // Celular
-
-            contadorAlumnos++;
-            Console.WriteLine($"Alumno {nombres} {apellidos} fue registrado.");
-        }
-
-        public static void ModificarAlumno(string nroDni)
-        {
-            // modificar un alumno por su Nro DNI
-
-            Console.WriteLine($"Alumno con Nro DNI {nroDni} fue modificado.");
-        }
-
-        public static void EliminarAlumno(string nroDni)
-        {
-            bool salir = false;
-
-            while (!salir)
+            var copia = ObtenerDatos();
+            for (int i = 0; i < copia.GetLength(0) - 1; i++)
             {
-                Console.Clear();
-                MenuEliminarAlumno();
-
-                int opcion;
-                if (!int.TryParse(Console.ReadLine(), out opcion))
-                {
-                    Console.WriteLine("Opción no válida. Por favor, intente de nuevo.");
-                    Console.ReadKey();
-                    Console.Clear();
-                    continue;
-                }
-
-                switch (opcion)
-                {
-                    case 1:
-                        // Confirmar eliminación
-                        //Console.WriteLine($"Alumno con Nro DNI {nroDni} fue eliminado.");
-                        salir = true;
-                        break;
-                    case 2:
-                        salir = true;
-                        Console.WriteLine("Cerrando menú de eliminación...");
-                        break;
-                    default:
-                        Console.WriteLine("Opción no válida. Por favor, intente de nuevo.");
-                        Console.ReadKey();
-                        Console.Clear();
-                        break;
-                }
+                int max = i;
+                for (int j = i + 1; j < copia.GetLength(0); j++)
+                    if (Parse(copia[j, IDX_NF]) > Parse(copia[max, IDX_NF])) max = j;
+                if (max != i) Intercambiar(copia, i, max);
             }
+            return copia;
         }
 
-        public static void RegistrarNotas(string nroDni)
+        // Intercambia dos filas completas en la matriz
+        private static void Intercambiar(string[,] arr, int r1, int r2)
         {
-            bool salir = false;
-
-            int nota = 0;
-            int index = -1; // se obtiene el índice del alumno por nroDni
-
-            for (int i = 0; i < contadorAlumnos; i++)
+            for (int i = 0; i < COLUMNAS; i++)
             {
-                if (alumnos[i, 0] == nroDni)
-                {
-                    index = i;
-                    break;
-                }
+                var tmp = arr[r1, i];
+                arr[r1, i] = arr[r2, i];
+                arr[r2, i] = tmp;
             }
-
-            if (index == -1)
-            {
-                Console.WriteLine($"Alumno con Nro DNI {nroDni} no encontrado.");
-                return;
-            }
-
-            while (!salir)
-            {
-                Console.Clear();
-                MenuNotas();
-
-                int opcion;
-                if (!int.TryParse(Console.ReadLine(), out opcion))
-                {
-                    Console.WriteLine("Opción no válida. Por favor, intente de nuevo.");
-                    Console.ReadKey();
-                    Console.Clear();
-                    continue;
-                }
-
-                switch (opcion)
-                {
-                    case 1:
-                        alumnos[index, 5] = nota.ToString(); // T1
-                        break;
-                    case 2:
-                        alumnos[index, 6] = nota.ToString(); // Parcial
-                        break;
-                    case 3:
-                        alumnos[index, 7] = nota.ToString(); // T2
-                        break;
-                    case 4:
-                        alumnos[index, 8] = nota.ToString(); // Final
-                        break;
-                    case 5:
-                        salir = true;
-                        Console.WriteLine("Cerrando registro de notas...");
-                        break;
-                    default:
-                        Console.WriteLine("Opción no válida. Por favor, intente de nuevo.");
-                        Console.ReadKey();
-                        Console.Clear();
-                        break;
-                }
-            }
-
-        }
-
-        public static void ModificarAlumno()
-        {
-            bool salir = false;
-
-            while (!salir)
-            {
-                Console.Clear();
-                MenuModificarAlumno();
-
-                int opcion;
-                if (!int.TryParse(Console.ReadLine(), out opcion))
-                {
-                    Console.WriteLine("Opción no válida. Por favor, intente de nuevo.");
-                    Console.ReadKey();
-                    Console.Clear();
-                    continue;
-                }
-
-                switch (opcion)
-                {
-                    case 5:
-                        salir = true;
-                        Console.WriteLine("Cerrando modificación de alumno...");
-                        break;
-                    default:
-                        Console.WriteLine("Opción no válida. Por favor, intente de nuevo.");
-                        Console.ReadKey();
-                        Console.Clear();
-                        break;
-                }
-            }
-        }
-
-        public static void ReporteOrdenado()
-        {
-            bool salir = false;
-
-            while (!salir)
-            {
-                Console.Clear();
-                MenuTipoOrden();
-
-                int opcion;
-                if (!int.TryParse(Console.ReadLine(), out opcion))
-                {
-                    Console.WriteLine("Opción no válida. Por favor, intente de nuevo.");
-                    Console.ReadKey();
-                    Console.Clear();
-                    continue;
-                }
-
-                switch (opcion)
-                {
-                    case 6:
-                        salir = true;
-                        Console.WriteLine("Cerrando filtrado de alumno...");
-                        break;
-                    default:
-                        Console.WriteLine("Opción no válida. Por favor, intente de nuevo.");
-                        Console.ReadKey();
-                        Console.Clear();
-                        break;
-                }
-            }
-        }
-
-        public static void ReporteNNotas(int n)
-        {
-            // generar un reporte de los N alumnos con mayor nota
-        }
-
-        private static void MenuNotas()
-        {
-            Console.WriteLine("---- REGISTRO DE NOTAS ----");
-            Console.WriteLine("1. T1");
-            Console.WriteLine("2. Parcial");
-            Console.WriteLine("3. T2");
-            Console.WriteLine("4. Final");
-            Console.WriteLine("5. Salir");
-            Console.Write("\nSeleccione una opción: ");
-        }
-
-        private static void MenuModificarAlumno()
-        {
-            Console.WriteLine("--- MODIFICAR ALUMNO ---");
-            Console.WriteLine("1. Nombres");
-            Console.WriteLine("2. Apellidos");
-            Console.WriteLine("3. Correo");
-            Console.WriteLine("4. Celular");
-            Console.WriteLine("5. Salir");
-            Console.Write("\nSeleccione una opción: ");
-        }
-
-        private static void MenuEliminarAlumno()
-        {
-            Console.WriteLine("--- ELIMINAR ALUMNO ---");
-            Console.WriteLine("1. Confirmar");
-            Console.WriteLine("2. Cancelar");
-            Console.Write("\nSeleccione una opción: ");
-        }
-
-        private static void MenuTipoOrden()
-        {
-            Console.WriteLine("--- TIPO DE ORDEN ---");
-            Console.WriteLine("1. Por Nro DNI");
-            Console.WriteLine("2. Por Nombres");
-            Console.WriteLine("3. Por Apellidos");
-            Console.WriteLine("4. Por Direccion");
-            Console.WriteLine("5. Por Celular");
-            Console.WriteLine("6. Salir");
-            Console.Write("\nSeleccione una opción: ");
         }
     }
 }
