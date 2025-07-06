@@ -12,7 +12,7 @@ namespace Library
         private const int MAX_ALUMNOS = 100;
 
         // Número de columnas (campos) que cada registro posee
-        private const int COLUMNAS = 10; 
+        private const int COLUMNAS = 10;
 
         // Matriz que contiene los datos
         private static readonly string[,] _data = new string[MAX_ALUMNOS, COLUMNAS];
@@ -139,6 +139,20 @@ namespace Library
             return copia;
         }
 
+        //public static string[,] Ordenar(int tipo)
+        //{
+        //    var copia = ObtenerDatos();
+
+        //    for (int i = 0; i < copia.GetLength(0) - 1; i++)
+        //    {
+        //        for (int j = i + 1; j < copia.GetLength(0); j++)
+        //            if (Comparar(copia, j, i, tipo) < 0)
+        //                Intercambiar(copia, j, i);
+
+        //    }
+        //    return copia;
+        //}
+
         // Retorna los N alumnos con mayor nota final
         public static string[,] ObtenerTopN(int n)
         {
@@ -203,6 +217,20 @@ namespace Library
             }
             return copia;
         }
+
+        //public static string[,] OrdenadarPorNFDesc()
+        //{
+        //    var copia = ObtenerDatos();
+
+        //    for (int i = 0; i < copia.GetLength(0) - 1; i++)
+        //    {
+        //        for (int j = i + 1; j < copia.GetLength(0); j++)
+        //            if (Parse(copia[j, IDX_NF]) > Parse(copia[i, IDX_NF]))
+        //                Intercambiar(copia, j, i);
+
+        //    }
+        //    return copia;
+        //}
 
         // Intercambia dos filas completas en la matriz
         private static void Intercambiar(string[,] arr, int r1, int r2)

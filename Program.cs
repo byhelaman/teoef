@@ -57,6 +57,8 @@ namespace TEO_EF
                     default: Helpers.MostrarError("Entrada no válida. Intente nuevamente."); Helpers.Pausa(); break;
                 }
             }
+
+            Helpers.Pausa();
         }
 
         // Listar todos los alumnos en formato de tabla
@@ -103,7 +105,7 @@ namespace TEO_EF
                 switch (op)
                 {
                     case "1":
-                        string nom = Helpers.Solicitar("Nuevos nombres: ", v => !string.IsNullOrWhiteSpace(v));
+                        string nom = Helpers.Solicitar("Nuevos nombres: ", n => !string.IsNullOrWhiteSpace(n));
                         Alumno.ModificarCampo(dni, 1, nom);
                         Console.WriteLine("\nNombres actualizados."); Helpers.Pausa(); break;
                     case "2":
@@ -137,7 +139,6 @@ namespace TEO_EF
             while (!salir)
             {
                 MenuEliminar.Mostrar();
-
                 string op = Helpers.Solicitar("\nOpción: ", s => s.Length == 1 && "12".Contains(s), MenuEliminar.Mostrar);
                 if (op == "1")
                 {
