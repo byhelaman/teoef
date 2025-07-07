@@ -219,6 +219,7 @@ namespace TEO_EF
                 for (int i = 0; i < datos.GetLength(0); i++)
                     if (datos[i, 0] == dni) return dni;
                 Helpers.MostrarError("DNI no encontrado.");
+                Helpers.Pausa();
             }
         }
 
