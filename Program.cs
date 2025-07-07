@@ -75,7 +75,7 @@ namespace TEO_EF
             Console.WriteLine("\nIngrese los datos del alumno:");
             string dni = Helpers.Solicitar("DNI (8 dígitos): ", d => d.Length == 8 && d.All(char.IsDigit));
             string nombres = Helpers.Solicitar("Nombres: ", n => !string.IsNullOrWhiteSpace(n));
-            string apellidos =  Helpers.Solicitar("Apellidos: ", a => !string.IsNullOrWhiteSpace(a));
+            string apellidos = Helpers.Solicitar("Apellidos: ", a => !string.IsNullOrWhiteSpace(a));
             string correo = Helpers.Solicitar("Correo: ", c => c.Contains("@"));
             string celular = Helpers.Solicitar("Celular (9 dígitos): ", c => c.Length == 9 && c.All(char.IsDigit));
 
@@ -140,6 +140,7 @@ namespace TEO_EF
             {
                 MenuEliminar.Mostrar();
                 string op = Helpers.Solicitar("\nOpción: ", s => s.Length == 1 && "12".Contains(s), MenuEliminar.Mostrar);
+
                 if (op == "1")
                 {
                     if (Alumno.Eliminar(dni, out string n, out string a))
@@ -202,7 +203,7 @@ namespace TEO_EF
         // Muestra los N mejores promedios
         static void ReporteTopN()
         {
-            Console.Clear();
+            //Console.Clear();
             int n = Helpers.Solicitar("Número de alumnos: ", (int v) => v > 0);
             Helpers.ImprimirTabla(Alumno.ObtenerTopN(n), true);
             Helpers.Pausa();
@@ -221,6 +222,6 @@ namespace TEO_EF
             }
         }
 
-        
+
     }
 }

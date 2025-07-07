@@ -129,12 +129,13 @@ namespace Library
         public static string[,] Ordenar(int tipo)
         {
             var copia = ObtenerDatos();
+
             for (int i = 0; i < copia.GetLength(0) - 1; i++)
             {
-                int min = i;
                 for (int j = i + 1; j < copia.GetLength(0); j++)
-                    if (Comparar(copia, j, min, tipo) < 0) min = j;
-                if (min != i) Intercambiar(copia, i, min);
+                    if (Comparar(copia, j, i, tipo) < 0)
+                        Intercambiar(copia, j, i);
+
             }
             return copia;
         }
@@ -142,22 +143,22 @@ namespace Library
         //public static string[,] Ordenar(int tipo)
         //{
         //    var copia = ObtenerDatos();
-
         //    for (int i = 0; i < copia.GetLength(0) - 1; i++)
         //    {
+        //        int min = i;
         //        for (int j = i + 1; j < copia.GetLength(0); j++)
-        //            if (Comparar(copia, j, i, tipo) < 0)
-        //                Intercambiar(copia, j, i);
-
+        //            if (Comparar(copia, j, min, tipo) < 0) min = j;
+        //        if (min != i) Intercambiar(copia, i, min);
         //    }
         //    return copia;
         //}
+
 
         // Retorna los N alumnos con mayor nota final
         public static string[,] ObtenerTopN(int n)
         {
             if (n > _contador) n = _contador; // Ajustar si N excede el total
-            var ord = OrdenadarPorNFDesc();
+            var ord = OrdenarPorNFDesc();
             var top = new string[n, COLUMNAS];
             for (int i = 0; i < n; i++)
                 for (int j = 0; j < COLUMNAS; j++)
@@ -204,33 +205,19 @@ namespace Library
             return string.Compare(arr[a, col], arr[b, col], StringComparison.OrdinalIgnoreCase);
         }
 
-        // Ordena una copia de los datos por Nota Final (descendente)
-        private static string[,] OrdenadarPorNFDesc()
+        public static string[,] OrdenarPorNFDesc()
         {
             var copia = ObtenerDatos();
+
             for (int i = 0; i < copia.GetLength(0) - 1; i++)
             {
-                int max = i;
                 for (int j = i + 1; j < copia.GetLength(0); j++)
-                    if (Parse(copia[j, IDX_NF]) > Parse(copia[max, IDX_NF])) max = j;
-                if (max != i) Intercambiar(copia, i, max);
+                    if (Parse(copia[j, IDX_NF]) > Parse(copia[i, IDX_NF]))
+                        Intercambiar(copia, j, i);
+
             }
             return copia;
         }
-
-        //public static string[,] OrdenadarPorNFDesc()
-        //{
-        //    var copia = ObtenerDatos();
-
-        //    for (int i = 0; i < copia.GetLength(0) - 1; i++)
-        //    {
-        //        for (int j = i + 1; j < copia.GetLength(0); j++)
-        //            if (Parse(copia[j, IDX_NF]) > Parse(copia[i, IDX_NF]))
-        //                Intercambiar(copia, j, i);
-
-        //    }
-        //    return copia;
-        //}
 
         // Intercambia dos filas completas en la matriz
         private static void Intercambiar(string[,] arr, int r1, int r2)

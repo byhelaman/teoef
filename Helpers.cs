@@ -32,35 +32,31 @@ namespace TEO_EF
         // Devuelve el número tras validar su formato
         public static int Solicitar(string prompt, Func<int, bool> validar)
         {
-            int valor; bool valido;
-            do
+            while (true)
             {
                 Console.Write(prompt);
-                valido = int.TryParse(Console.ReadLine(), out valor) && validar(valor);
-                if (!validar(valor))
-                {
-                    MostrarError("Entrada no válida. Intente nuevamente.");
-                    Pausa();
-                }
-            } while (!valido);
-            return valor;
+
+                if (int.TryParse(Console.ReadLine(), out int valor) && validar(valor))
+                    return valor;
+                
+                MostrarError("Entrada no válida. Intente nuevamente.");
+                Pausa();
+            }
         }
 
         // Igual que la versión anterior pero para valores double
         public static double Solicitar(string prompt, Func<double, bool> validar)
         {
-            double valor; bool valido;
-            do
+            while (true)
             {
                 Console.Write(prompt);
-                valido = double.TryParse(Console.ReadLine(), out valor) && validar(valor);
-                if (!validar(valor))
-                {
-                    MostrarError("Entrada no válida. Intente nuevamente.");
-                    Pausa();
-                }
-            } while (!valido);
-            return valor;
+
+                if (double.TryParse(Console.ReadLine(), out double valor) && validar(valor))
+                    return valor;
+
+                MostrarError("Entrada no válida. Intente nuevamente.");
+                Pausa();
+            }
         }
 
         // Muestra en consola la matriz "tabla" con formato de columnas.
@@ -76,7 +72,7 @@ namespace TEO_EF
 
             if (notas)
             {
-                Console.WriteLine($"\n{"DNI",-10} | {"Nombres",-15} | {"Apellidos",-20} | {"T1",-5} | {"Parcial",-7} | {"T2",-5} | {"Final",-5} | {"Prom", -5}");
+                Console.WriteLine($"\n{"DNI",-10} | {"Nombres",-15} | {"Apellidos",-20} | {"T1",-5} | {"Parcial",-7} | {"T2",-5} | {"Final",-5} | {"Prom",-5}");
                 Console.WriteLine(new string('-', 95));
                 for (int i = 0; i < tabla.GetLength(0); i++)
                     Console.WriteLine($"{tabla[i, 0],-10} | {tabla[i, 1],-15} | {tabla[i, 2],-20} | {tabla[i, 5],-5} | {tabla[i, 6],-7} | {tabla[i, 7],-5} | {tabla[i, 8],-5} | {tabla[i, 9],-5}");
