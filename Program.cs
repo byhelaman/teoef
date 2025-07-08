@@ -43,7 +43,7 @@ namespace TEO_EF
                 //            se refresque antes del siguiente intento.
                 //   4. Repite los pasos 1‑3 en un bucle hasta obtener un valor válido.
 
-                string opcion = Helpers.Solicitar("\nOpción: ", s => "12345678".Contains(s), MenuPrincipal.Mostrar);
+                string opcion = Helpers.Solicitar("\nOpción: ", s => s.Length == 1 && "12345678".Contains(s), MenuPrincipal.Mostrar);
                 switch (opcion)
                 {
                     case "1": Listar(); break;
@@ -214,10 +214,11 @@ namespace TEO_EF
         {
             while (true)
             {
-                string dni = Helpers.Solicitar("Ingrese el DNI del alumno: ", d => d.Length == 8 && d.All(char.IsDigit));
-                var datos = Alumno.ObtenerDatos();
+                string dni = Helpers.Solicitar("Ingrese el DNI del alumno: ", d => d.Length == 8 && d.All(char.IsDigit)); var datos = Alumno.ObtenerDatos();
+
                 for (int i = 0; i < datos.GetLength(0); i++)
                     if (datos[i, 0] == dni) return dni;
+
                 Helpers.MostrarError("DNI no encontrado.");
                 Helpers.Pausa();
             }
